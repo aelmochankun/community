@@ -11,7 +11,7 @@ metadata:
   name: es-master
   namespace: elasticsearch
 spec:
-  replicas: 3 # Number of Elasticsearch master nodes to deploy
+  replicas: 1 # Number of Elasticsearch master nodes to deploy
   selector:
     matchLabels:
       component: elasticsearch
@@ -43,10 +43,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: type # Replace this with corresponding worker node label's key
+              - key: kubernetes.io/hostname # Replace this with corresponding worker node label's key
                 operator: In
                 values:
-                - general # Replace this with corresponding worker node label's value
+                - gke-gke-bbl-prod-gen-gke-bbl-prod-gen-2e74f97e-6flb # Replace this with corresponding worker node label's value
       initContainers:
       - name: init-sysctl
         image: busybox:1.27.2
@@ -62,7 +62,7 @@ spec:
         - name: CLUSTER_NAME
           value: logs
         - name: NUMBER_OF_MASTERS
-          value: "3"
+          value: "1"
         - name: NODE_MASTER
           value: "true"
         - name: NODE_INGEST
@@ -93,18 +93,18 @@ spec:
           value: -Xms6g -Xmx6g
         resources:
           requests:
-            memory: 12Gi
-            cpu: 2
+            memory: 8Gi
+            cpu: 4
           limits:
-            memory: 12Gi
-            cpu: 2
+            memory: 8Gi
+            cpu: 4
         livenessProbe:
           tcpSocket:
             port: transport
           initialDelaySeconds: 60
           periodSeconds: 10
         # Official Image from Open Distro Team
-        image: amazon/opendistro-for-elasticsearch:0.9.0
+        image: amazon/opendistro-for-elasticsearch:1.6.0
         imagePullPolicy: Always
         ports:
         - containerPort: 9300
