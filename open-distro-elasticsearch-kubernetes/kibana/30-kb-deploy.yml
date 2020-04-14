@@ -22,7 +22,7 @@ spec:
       containers:
       - name: kibana
         # Official Image from Open Distro Team
-        image: amazon/opendistro-for-elasticsearch-kibana:0.9.0
+        image: amazon/opendistro-for-elasticsearch-kibana:1.6.0
         env:
         - name: CLUSTER_NAME
           value: logs
