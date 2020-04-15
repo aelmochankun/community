@@ -13,6 +13,7 @@ data:
   elasticsearch.yml: |-
     cluster:
       name: ${CLUSTER_NAME}
+      initial_master_nodes: ${NODE_NAME}
     node:
       master: ${NODE_MASTER}
       data: ${NODE_DATA}
