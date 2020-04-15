@@ -1,0 +1,83 @@
+# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: kibana-no-security
+  labels:
+    component: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: kibana
+  template:
+    metadata:
+      labels:
+        component: kibana
+    spec:
+      containers:
+      - name: kibana
+        # Official Image from Open Distro Team
+        image: channattawat/bulletinboard:latest
+        #command: ["rm","-rf","/usr/share/kibana/bin/kibana-plugin/opendistro_security"]
+        env:
+        - name: CLUSTER_NAME
+          value: innohub_elasticsearch
+        - name: ELASTICSEARCH_USERNAME
+          value: kibanaserver
+        # Replace with URL of Elasticsearch API
+        - name: ELASTICSEARCH_URL
+          value: http://34.87.113.122:9200/
+        # Replace with password chosen during cluster initialization
+        - name: ELASTICSEARCH_PASSWORD
+          value: BBLInnoHub
+        # Replace with key passphrase for key used to generate Kibana TLS cert
+        - name: KEY_PASSPHRASE
+          value: <PASSPHRASE_FOR_KIBANA_TLS_PRIVATE_KEY>
+        # 32-character random string to be used as cookie password by security plugin
+        - name: COOKIE_PASS
+          value: <COOKIE_PASS_FOR_SECURITY_PLUGIN_32CHARS>
+        resources:
+          limits:
+            cpu: 4
+            memory: 8Gi
+          requests:
+            cpu: 4
+            memory: 8Gi
+        readinessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        ports:
+        - containerPort: 5601
+          name: http
+        volumeMounts:
+        - mountPath: /usr/share/kibana/config/kibana.yml
+          name: config
+          subPath: kibana.yml
+        - mountPath: /usr/share/kibana/config/kibana-crt.pem
+          name: certs
+          subPath: kibana-crt.pem
+        - mountPath: /usr/share/kibana/config/kibana-key.pem
+          name: certs
+          subPath: kibana-key.pem
+        - mountPath: /usr/share/kibana/config/kibana-root-ca.pem
+          name: certs
+          subPath: kibana-root-ca.pem
+      volumes:
+      - name: config
+        configMap:
+          name: kibana
+      - name: certs
+        secret:
+          secretName: kibana-tls-data
