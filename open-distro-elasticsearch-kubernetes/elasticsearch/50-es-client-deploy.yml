@@ -11,7 +11,7 @@ metadata:
   name: es-client
   namespace: elasticsearch
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       component: elasticsearch
@@ -46,10 +46,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: type # Replace this with corresponding worker node label's key
+              - key: kubernetes.io/hostname # Replace this with corresponding worker node label's key
                 operator: In
                 values:
-                - general # Replace this with corresponding worker node label's value
+                - gke-gke-bbl-prod-gen-gke-bbl-prod-gen-e3e9667d-752j # Replace this with corresponding worker node label's value
       initContainers:
       - name: init-sysctl
         image: busybox:1.27.2
@@ -63,9 +63,9 @@ spec:
       - name: elasticsearch
         env:
         - name: CLUSTER_NAME
-          value: logs
+          value: innohub_elasticsearch
         - name: NUMBER_OF_MASTERS
-          value: "3"
+          value: "1"
         - name: NODE_MASTER
           value: "false"
         - name: NODE_INGEST
@@ -97,12 +97,12 @@ spec:
         resources:
           requests:
             cpu: 2
-            memory: 12Gi
+            memory: 8Gi
           limits:
             cpu: 2
-            memory: 12Gi
+            memory: 8Gi
         # Official Image from Open Distro Team
-        image: amazon/opendistro-for-elasticsearch:0.9.0
+        image: amazon/opendistro-for-elasticsearch:1.6.0
         imagePullPolicy: Always
         ports:
         - containerPort: 9200

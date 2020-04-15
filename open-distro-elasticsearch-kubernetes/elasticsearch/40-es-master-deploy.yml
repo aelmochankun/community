@@ -60,7 +60,7 @@ spec:
       - name: elasticsearch
         env:
         - name: CLUSTER_NAME
-          value: logs
+          value: innohub_elasticsearch
         - name: NUMBER_OF_MASTERS
           value: "1"
         - name: NODE_MASTER

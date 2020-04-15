@@ -24,7 +24,7 @@ data:
     processors: ${PROCESSORS:1}
 
     network.host: ${NETWORK_HOST}
-
+    
     path:
       data: /usr/share/elasticsearch/data
       logs: /usr/share/elasticsearch/logs
@@ -36,6 +36,8 @@ data:
       zen:
         ping.unicast.hosts: ${DISCOVERY_SERVICE}
         minimum_master_nodes: ${NUMBER_OF_MASTERS}
+
+    opendistro_security.disabled: true #Remove later
 
     # TLS Configuration Transport Layer
     opendistro_security.ssl.transport.pemcert_filepath: elk-crt.pem

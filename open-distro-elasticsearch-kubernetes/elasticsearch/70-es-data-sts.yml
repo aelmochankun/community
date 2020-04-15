@@ -12,7 +12,7 @@ metadata:
   namespace: elasticsearch
 spec:
   serviceName: elasticsearch-data
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       component: elasticsearch
@@ -25,11 +25,32 @@ spec:
       annotations:
         iam.amazonaws.com/role: <ARN_OF_IAM_ROLE_FOR_CONTAINER>
     spec:
+      serviceAccountName: elasticsearch
       # Add toleration for not scheduling on dedicated node
       tolerations:
       - key: dedicated
         value: "true"
         effect: NoSchedule
+      # Weighted anti-affinity to disallow deploying client node to the same worker node as master node
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: "kubernetes.io/hostname"
+                labelSelector:
+                  matchLabels:
+                    component: elasticsearch
+                    role: data
+        # Node Affinity to attract this Deployment's pods to a specific set of worker nodes
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname # Replace this with corresponding worker node label's key
+                operator: In
+                values:
+                - gke-gke-bbl-prod-gen-gke-bbl-prod-gen-fa5a54e1-wrzb # Replace this with corresponding worker node label's value
       initContainers:
       - name: init-sysctl
         image: busybox:1.27.2
@@ -44,45 +65,26 @@ spec:
         image: busybox
         volumeMounts:
           - mountPath: /usr/share/elasticsearch/data
-            name: data
-      # Weighted anti-affinity to disallow deploying client node to the same worker node as master node
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              topologyKey: "kubernetes.io/hostname"
-              labelSelector:
-                matchLabels:
-                  component: elasticsearch
-                  role: data
-        # Node Affinity to attract this Deployment's pods to a specific set of worker nodes
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: type # Replace this with corresponding worker node label's key
-                operator: In
-                values:
-                - general # Replace this with corresponding worker node label's value
-      serviceAccountName: elasticsearch
+            name: data-volume
       containers:
       - name: elasticsearch
         env:
         - name: CLUSTER_NAME
-          value: logs
+          value: innohub_elasticsearch
+        - name: NUMBER_OF_MASTERS
+          value: "1"
         - name: NODE_MASTER
           value: "false"
         - name: NODE_INGEST
           value: "false"
-        - name: NETWORK_HOST
-          value: "_eth0_"
+        - name: NODE_DATA
+          value: "true"
         - name: TRANSPORT_TLS_PEM_PASS
           value: "REPLACE_WITH_TLS_PRIVATE_KEY_PASSPHRASE" # Replace this with the passphrase for the TLS private key
         - name: HTTP_TLS_PEM_PASS
           value: "REPLACE_WITH_TLS_PRIVATE_KEY_PASSPHRASE" # Replace this with the passphrase for the TLS private key
-        - name: NUMBER_OF_MASTERS
-          value: "3"
+        - name: NETWORK_HOST
+          value: "_eth0_"
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -93,36 +95,32 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: NODE_DATA
-          value: "true"
         - name: PROCESSORS
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
         - name: ES_JAVA_OPTS
-          value: -Xms8g -Xmx8g
-        # Official Image from Open Distro Team
-        image: amazon/opendistro-for-elasticsearch:0.9.0
-        imagePullPolicy: Always
-        # only publish the transport port
-        ports:
-        - containerPort: 9300
-          name: transport
+          value: -Xms6g -Xmx6g
         resources:
           requests:
             cpu: 2
-            memory: 16Gi
+            memory: 8Gi
           limits:
             cpu: 2
-            memory: 16Gi
+            memory: 8Gi
+        # Official Image from Open Distro Team
+        image: amazon/opendistro-for-elasticsearch:1.6.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9300
+          name: transport
         livenessProbe:
           tcpSocket:
             port: transport
           initialDelaySeconds: 60
-          periodSeconds: 10
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
-          name: data
+          name: data-volume
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
@@ -160,12 +158,6 @@ spec:
       - name: certs
         secret:
           secretName: elasticsearch-tls-data
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ ReadWriteOnce ]
-      storageClassName: elk-gp2
-      resources:
-        requests:
-          storage: 2Ti
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: opendistro-elasticsearch-bbl-pvc
