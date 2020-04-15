@@ -25,15 +25,15 @@ spec:
         image: amazon/opendistro-for-elasticsearch-kibana:1.6.0
         env:
         - name: CLUSTER_NAME
-          value: logs
+          value: innohub_elasticsearch
         - name: ELASTICSEARCH_USERNAME
           value: kibanaserver
         # Replace with URL of Elasticsearch API
         - name: ELASTICSEARCH_URL
-          value: <URL_OF_ELASTICSEARCH_API>
+          value: http://34.87.113.122:9200/
         # Replace with password chosen during cluster initialization
         - name: ELASTICSEARCH_PASSWORD
-          value: <PASSWORD_CHOSEN_DURING_CLUSTER_INITIALIZATION>
+          value: BBLInnoHub
         # Replace with key passphrase for key used to generate Kibana TLS cert
         - name: KEY_PASSPHRASE
           value: <PASSPHRASE_FOR_KIBANA_TLS_PRIVATE_KEY>
@@ -43,10 +43,10 @@ spec:
         resources:
           limits:
             cpu: 4
-            memory: 16Gi
+            memory: 8Gi
           requests:
             cpu: 4
-            memory: 16Gi
+            memory: 8Gi
         readinessProbe:
           tcpSocket:
             port: http

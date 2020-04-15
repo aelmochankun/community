@@ -31,7 +31,7 @@ spec:
       - key: dedicated
         value: "true"
         effect: NoSchedule
-      # Weighted anti-affinity to disallow deploying client node to the same worker node as master node
+      # Weighted anti-affinity to disallow deploying data node to the same worker node as master node
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -80,9 +80,9 @@ spec:
         - name: NODE_DATA
           value: "true"
         - name: TRANSPORT_TLS_PEM_PASS
-          value: "REPLACE_WITH_TLS_PRIVATE_KEY_PASSPHRASE" # Replace this with the passphrase for the TLS private key
+          value: "123456789!" # Replace this with the passphrase for the TLS private key
         - name: HTTP_TLS_PEM_PASS
-          value: "REPLACE_WITH_TLS_PRIVATE_KEY_PASSPHRASE" # Replace this with the passphrase for the TLS private key
+          value: "123456789!" # Replace this with the passphrase for the TLS private key
         - name: NETWORK_HOST
           value: "_eth0_"
         - name: NODE_NAME

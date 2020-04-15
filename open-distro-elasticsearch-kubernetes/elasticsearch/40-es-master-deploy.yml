@@ -72,9 +72,9 @@ spec:
         - name: NETWORK_HOST
           value: "0.0.0.0"
         - name: TRANSPORT_TLS_PEM_PASS
-          value: "REPLACE_WITH_TLS_PRIVATE_KEY_PASSPHRASE" # Replace this with the passphrase for the TLS private key
+          value: "123456789!" # Replace this with the passphrase for the TLS private key
         - name: HTTP_TLS_PEM_PASS
-          value: "REPLACE_WITH_TLS_PRIVATE_KEY_PASSPHRASE" # Replace this with the passphrase for the TLS private key
+          value: "123456789!" # Replace this with the passphrase for the TLS private key
         - name: NODE_NAME
           valueFrom:
             fieldRef:

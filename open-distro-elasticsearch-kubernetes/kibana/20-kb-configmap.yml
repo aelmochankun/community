@@ -14,18 +14,18 @@ data:
     ---
     # Default Kibana configuration from kibana-docker.
     server.name: kibana
-    server.host: "0"
+    server.host: "0.0.0.0"
 
     # Replace with Elasticsearch DNS name picked during Service deployment
-    elasticsearch.url: ${ELASTICSEARCH_URL}
+    elasticsearch.hosts: ["${ELASTICSEARCH_URL}"]
     elasticsearch.requestTimeout: 360000
 
     # Kibana TLS Config
-    server.ssl.enabled: true
+    server.ssl.enabled: false
     server.ssl.key: /usr/share/kibana/config/kibana-key.pem
     server.ssl.certificate: /usr/share/kibana/config/kibana-crt.pem
     server.ssl.keyPassphrase: ${KEY_PASSPHRASE}
     elasticsearch.ssl.certificateAuthorities: /usr/share/kibana/config/kibana-root-ca.pem
 
-    opendistro_security.cookie.secure: true
+    opendistro_security.cookie.secure: false
     opendistro_security.cookie.password: ${COOKIE_PASS}

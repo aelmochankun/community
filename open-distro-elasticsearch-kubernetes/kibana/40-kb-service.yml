@@ -34,5 +34,5 @@ spec:
     component: kibana
   ports:
   - name: https
-    port: 443
+    port: 5601
     targetPort: 5601

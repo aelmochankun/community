@@ -38,9 +38,10 @@ data:
         ping.unicast.hosts: ${DISCOVERY_SERVICE}
         minimum_master_nodes: ${NUMBER_OF_MASTERS}
 
-    opendistro_security.disabled: true #Remove later
+    opendistro_security.disabled: true ###Remove later
 
     # TLS Configuration Transport Layer
+    opendistro_security.ssl.transport.enabled: true
     opendistro_security.ssl.transport.pemcert_filepath: elk-crt.pem
     opendistro_security.ssl.transport.pemkey_filepath: elk-key.pem
     opendistro_security.ssl.transport.pemtrustedcas_filepath: elk-root-ca.pem
