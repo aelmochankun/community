@@ -144,10 +144,17 @@ spec:
           name: certs
           subPath: admin-root-ca.pem
           readOnly: true
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+          name: internal-user
+          subPath: internal_users.yml
+          readOnly: false
       volumes:
       - name: config
         configMap:
           name: elasticsearch
+      - name: internal-user
+        secret:
+          secretName: elasticsearch-internal-user
       - name: certs
         secret:
           secretName: elasticsearch-tls-data
